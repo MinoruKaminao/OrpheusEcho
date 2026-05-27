@@ -16,7 +16,13 @@ let package = Package(
     targets: [
         .target(
             name: "LostPetNameFinder",
-            dependencies: []
+            dependencies: [],
+            exclude: ["LostPetNameFinderApp.swift"]
         ),
+        .executableTarget(
+            name: "LostPetNameFinderTestRunner",
+            dependencies: ["LostPetNameFinder"],
+            path: "Sources/TestRunner"
+        )
     ]
 )

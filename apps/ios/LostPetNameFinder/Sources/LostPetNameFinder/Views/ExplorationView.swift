@@ -1,7 +1,7 @@
 import SwiftUI
 
 public struct ExplorationView: View {
-    @EnvironmentObject var client: MockAPIClient
+    @EnvironmentObject var client: APIClient
     @State private var currentIndex = 0
     @State private var navigateToRanking = false
     
@@ -116,6 +116,54 @@ public struct ExplorationView: View {
                             .clipShape(Capsule())
                         }
                         .minHeightTapTarget()
+                        
+                        // AI特徴量（推定動作マーカー）表示エリア
+                        if let features = client.lastFeatures {
+                            VStack(spacing: 6) {
+                                Text("推定動作マーカー (AI解析値)")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundStyle(.white.opacity(0.6))
+                                
+                                HStack(spacing: 12) {
+                                    VStack {
+                                        Text("視線移動")
+                                            .font(.system(size: 8))
+                                            .foregroundStyle(.white.opacity(0.5))
+                                        Text(String(format: "%.2f", features.gaze_shift_score))
+                                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                            .foregroundStyle(.white)
+                                    }
+                                    VStack {
+                                        Text("頭の回転")
+                                            .font(.system(size: 8))
+                                            .foregroundStyle(.white.opacity(0.5))
+                                        Text(String(format: "%.2f", features.head_turn_score))
+                                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                            .foregroundStyle(.white)
+                                    }
+                                    VStack {
+                                        Text("耳の動き")
+                                            .font(.system(size: 8))
+                                            .foregroundStyle(.white.opacity(0.5))
+                                        Text(String(format: "%.2f", features.ear_motion_score))
+                                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                            .foregroundStyle(.white)
+                                    }
+                                    VStack {
+                                        Text("接近度")
+                                            .font(.system(size: 8))
+                                            .foregroundStyle(.white.opacity(0.5))
+                                        Text(String(format: "%.2f", features.approach_score))
+                                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                            .foregroundStyle(.white)
+                                    }
+                                }
+                                .padding(8)
+                                .background(Color.white.opacity(0.08))
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                            }
+                            .padding(.top, 8)
+                        }
                     }
                     .padding(24)
                     .background(Color.black.opacity(0.6))

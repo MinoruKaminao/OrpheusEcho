@@ -1,7 +1,7 @@
 import SwiftUI
 
 public struct ResultDetailView: View {
-    @EnvironmentObject var client: MockAPIClient
+    @EnvironmentObject var client: APIClient
     @State private var navigateToHome = false
     
     // Privacy and Sharing state

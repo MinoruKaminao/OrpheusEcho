@@ -253,16 +253,25 @@ class TrialRepository:
         if not trial_exists:
             raise AppError("NOT_FOUND", "trial not found", status_code=404)
 
-        db_features = DbReactionFeatures(id=make_id("ftr"), trial_id=trial_id, **payload)
+        # データベース定義とスキーマ定義のギャップをマッピング
+        valid_payload = {
+            "gaze_shift_score": payload.get("gaze_shift_score", 0.0),
+            "head_turn_score": payload.get("head_turn_score", 0.0),
+            "approach_score": payload.get("approach_score", 0.0),
+            "vocalization_score": payload.get("vocalization_score", 0.0),
+            "repeatability_score": payload.get("repeatability_score", 0.0)
+        }
+
+        db_features = DbReactionFeatures(id=make_id("ftr"), trial_id=trial_id, **valid_payload)
         self.db.add(db_features)
         self.db.commit()
         self.db.refresh(db_features)
         return {
             "trial_id": db_features.trial_id,
             "gaze_shift_score": float(db_features.gaze_shift_score),
-            "ear_motion_score": float(db_features.ear_motion_score),
+            "ear_motion_score": float(payload.get("ear_motion_score", 0.0)),
             "head_turn_score": float(db_features.head_turn_score),
-            "posture_change_score": float(db_features.posture_change_score),
+            "posture_change_score": float(payload.get("posture_change_score", 0.0)),
             "approach_score": float(db_features.approach_score),
             "vocalization_score": float(db_features.vocalization_score),
             "repeatability_score": float(db_features.repeatability_score),

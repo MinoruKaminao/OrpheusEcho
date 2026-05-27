@@ -103,3 +103,31 @@ public struct Trial: Identifiable, Codable {
     public let played_at: Date
     public var manual_flag: String?
 }
+
+public struct ReactionFeatures: Codable {
+    public let gaze_shift_score: Double
+    public let ear_motion_score: Double
+    public let head_turn_score: Double
+    public let posture_change_score: Double
+    public let approach_score: Double
+    public let vocalization_score: Double
+    public let repeatability_score: Double
+
+    public init(
+        gaze_shift_score: Double,
+        ear_motion_score: Double,
+        head_turn_score: Double,
+        posture_change_score: Double,
+        approach_score: Double,
+        vocalization_score: Double,
+        repeatability_score: Double
+    ) {
+        self.gaze_shift_score = gaze_shift_score
+        self.ear_motion_score = ear_motion_score
+        self.head_turn_score = head_turn_score
+        self.posture_change_score = posture_change_score
+        self.approach_score = approach_score
+        self.vocalization_score = vocalization_score
+        self.repeatability_score = repeatability_score
+    }
+}

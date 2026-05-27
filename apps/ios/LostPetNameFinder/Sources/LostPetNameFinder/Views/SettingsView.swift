@@ -1,7 +1,7 @@
 import SwiftUI
 
 public struct SettingsView: View {
-    @EnvironmentObject var client: MockAPIClient
+    @EnvironmentObject var client: APIClient
     
     // settings variables
     @State private var ttsVolume: Double = 0.8

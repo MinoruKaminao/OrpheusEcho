@@ -1,7 +1,7 @@
 import SwiftUI
 
 public struct HomeView: View {
-    @EnvironmentObject var client: MockAPIClient
+    @EnvironmentObject var client: APIClient
     @State private var navigateToSelection = false
     @State private var navigateToHistory = false
     @State private var navigateToSettings = false

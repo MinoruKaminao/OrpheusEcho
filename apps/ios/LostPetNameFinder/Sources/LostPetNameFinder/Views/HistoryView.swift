@@ -1,7 +1,7 @@
 import SwiftUI
 
 public struct HistoryView: View {
-    @EnvironmentObject var client: MockAPIClient
+    @EnvironmentObject var client: APIClient
 
     public init() {}
 

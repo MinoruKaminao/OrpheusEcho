@@ -88,9 +88,9 @@ def get_ranking_service(db: Session = Depends(get_db)) -> RankingService:
                 f.trial_id: ReactionFeatures(
                     trial_id=f.trial_id,
                     gaze_shift_score=float(f.gaze_shift_score),
-                    ear_motion_score=float(f.ear_motion_score),
+                    ear_motion_score=0.0, # DB未定義のため0.0フォールバック
                     head_turn_score=float(f.head_turn_score),
-                    posture_change_score=float(f.posture_change_score),
+                    posture_change_score=0.0, # DB未定義のため0.0フォールバック
                     approach_score=float(f.approach_score),
                     vocalization_score=float(f.vocalization_score),
                     repeatability_score=float(f.repeatability_score)

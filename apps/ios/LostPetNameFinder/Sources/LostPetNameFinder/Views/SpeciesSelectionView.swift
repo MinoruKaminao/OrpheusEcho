@@ -1,7 +1,7 @@
 import SwiftUI
 
 public struct SpeciesSelectionView: View {
-    @EnvironmentObject var client: MockAPIClient
+    @EnvironmentObject var client: APIClient
     @State private var navigateToInfo = false
     @State private var selectedSpecies: Species?
 
@@ -82,6 +82,6 @@ public struct SpeciesSelectionView: View {
 struct SpeciesSelectionView_Previews: PreviewProvider {
     public static var previews: some View {
         SpeciesSelectionView()
-            .environmentObject(MockAPIClient())
+            .environmentObject(APIClient())
     }
 }

@@ -1,7 +1,7 @@
 import SwiftUI
 
 public struct AnimalInfoView: View {
-    @EnvironmentObject var client: MockAPIClient
+    @EnvironmentObject var client: APIClient
     public let species: Species
 
     @State private var tempAnimalId = ""

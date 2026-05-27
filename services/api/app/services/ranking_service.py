@@ -24,25 +24,26 @@ class RankingService:
 
             trial_counts[trial.candidate_id] += 1
             # 手動反応をベースに初期スコア（参考値）を計算
+            # 手動反応に基づく基本スコア（手動値の重みを設定）
             base = 0.1
             if trial.manual_flag == "reaction_yes":
-                base = 0.5
+                base = 0.9
             elif trial.manual_flag == "reaction_weak":
-                base = 0.25
+                base = 0.45
 
             # AI特徴量による推論補助（存在する場合）
             feature = self.store.features.get(trial.trial_id)
             if feature:
-                feature_avg = (
-                    feature.gaze_shift_score
-                    + feature.ear_motion_score
-                    + feature.head_turn_score
-                    + feature.posture_change_score
-                    + feature.approach_score
-                    + feature.vocalization_score
-                    + feature.repeatability_score
-                ) / 7.0
-                base = (base + feature_avg) / 2.0
+                # Naming認識に特化した重要特徴量の重み付け
+                # Head Turn & Gaze Shift: 大(0.35ずつ)、Ear & Approach: 中(0.15ずつ)
+                feature_weighted = (
+                    0.35 * feature.head_turn_score
+                    + 0.35 * feature.gaze_shift_score
+                    + 0.15 * feature.ear_motion_score
+                    + 0.15 * feature.approach_score
+                )
+                # 手動判定 (40%) と AI特徴量 (60%) のブレンドスコア
+                base = 0.4 * base + 0.6 * feature_weighted
 
             # 複数回試行時の最大参考スコアを採用（0.99を上限とする参考値）
             score_by_candidate[trial.candidate_id] = max(

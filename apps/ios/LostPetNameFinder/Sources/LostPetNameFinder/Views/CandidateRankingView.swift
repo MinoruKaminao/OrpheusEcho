@@ -1,7 +1,7 @@
 import SwiftUI
 
 public struct CandidateRankingView: View {
-    @EnvironmentObject var client: MockAPIClient
+    @EnvironmentObject var client: APIClient
     @State private var navigateToDetail = false
 
     public init() {}
