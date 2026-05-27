@@ -64,3 +64,6 @@ class ReactionFeatures:
     approach_score: float
     vocalization_score: float
     repeatability_score: float
+    latency_ms: int | None = None
+    manual_score: float | None = None
+    model_version: str | None = None

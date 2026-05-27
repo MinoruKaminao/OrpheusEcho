@@ -56,6 +56,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/KnownAnimalRegistrationView.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/ResultDetailView.swift"
         },
         {
@@ -65,6 +69,10 @@
         {
           "kind" : "file",
           "name" : "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/SpeciesSelectionView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/TrainingSessionView.swift"
         },
         {
           "kind" : "file",
@@ -87,9 +95,11 @@
         "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/LostPetNameFinder.build/ExplorationView.swift.o",
         "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/LostPetNameFinder.build/HistoryView.swift.o",
         "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/LostPetNameFinder.build/HomeView.swift.o",
+        "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/LostPetNameFinder.build/KnownAnimalRegistrationView.swift.o",
         "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/LostPetNameFinder.build/ResultDetailView.swift.o",
         "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/LostPetNameFinder.build/SettingsView.swift.o",
-        "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/LostPetNameFinder.build/SpeciesSelectionView.swift.o"
+        "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/LostPetNameFinder.build/SpeciesSelectionView.swift.o",
+        "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/LostPetNameFinder.build/TrainingSessionView.swift.o"
       ],
       "otherArguments" : [
         "-target",
@@ -170,6 +180,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/LostPetNameFinder.build/KnownAnimalRegistrationView.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/LostPetNameFinder.build/ResultDetailView.swift.o"
         },
         {
@@ -179,6 +193,10 @@
         {
           "kind" : "file",
           "name" : "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/LostPetNameFinder.build/SpeciesSelectionView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/LostPetNameFinder.build/TrainingSessionView.swift.o"
         },
         {
           "kind" : "file",
@@ -195,9 +213,11 @@
         "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/ExplorationView.swift",
         "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/HistoryView.swift",
         "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/HomeView.swift",
+        "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/KnownAnimalRegistrationView.swift",
         "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/ResultDetailView.swift",
         "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/SettingsView.swift",
-        "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/SpeciesSelectionView.swift"
+        "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/SpeciesSelectionView.swift",
+        "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/TrainingSessionView.swift"
       ],
       "tempsPath" : "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/LostPetNameFinder.build",
       "wholeModuleOptimization" : false
@@ -312,9 +332,11 @@
       "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/ExplorationView.swift",
       "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/HistoryView.swift",
       "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/HomeView.swift",
+      "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/KnownAnimalRegistrationView.swift",
       "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/ResultDetailView.swift",
       "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/SettingsView.swift",
       "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/SpeciesSelectionView.swift",
+      "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/TrainingSessionView.swift",
       "-I",
       "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/Modules",
       "-target",
@@ -478,6 +500,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/KnownAnimalRegistrationView.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/ResultDetailView.swift"
         },
         {
@@ -487,6 +513,10 @@
         {
           "kind" : "file",
           "name" : "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/SpeciesSelectionView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/Sources/LostPetNameFinder/Views/TrainingSessionView.swift"
         }
       ],
       "outputFilePath" : "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/LostPetNameFinder.build/sources"
@@ -552,6 +582,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/LostPetNameFinder.build/KnownAnimalRegistrationView.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/LostPetNameFinder.build/MockAPIClient.swift.o"
         },
         {
@@ -569,6 +603,10 @@
         {
           "kind" : "file",
           "name" : "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/LostPetNameFinder.build/SpeciesSelectionView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/minorukaminao/OrpheusEcho/apps/ios/LostPetNameFinder/.build/arm64-apple-macosx/debug/LostPetNameFinder.build/TrainingSessionView.swift.o"
         },
         {
           "kind" : "file",

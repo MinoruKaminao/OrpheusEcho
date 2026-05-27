@@ -1,0 +1,18 @@
+--- SESSION METADATA ---
+Session ID,ses_ec5e0feb7bd8
+Species,cat
+Location,
+Temp ID,CAT-OFFLINE-999
+Coat Color,
+Age Hint,
+Notes,Captured during offline mode test
+Status,closed
+Created At,2026-05-27T19:10:38.025585Z
+
+--- TOP RANKED CANDIDATES ---
+Name,Score,Uncertainty Flag
+ルナ,0.79,True
+
+--- EXPLORATION TRIALS ---
+Trial ID,Candidate Name,Voice Type,Modulation,Reaction Type,Gaze Shift,Head Turn,Ear Motion,Approach,Vocalization,Repeatability,Played At
+trl_27258a624977,ルナ,female_bright,unknown,reaction_yes,0.9,0.91,0.62,0.65,0.09,0.82,2026-05-27T19:10:38Z

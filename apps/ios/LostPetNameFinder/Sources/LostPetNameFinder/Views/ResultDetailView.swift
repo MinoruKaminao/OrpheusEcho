@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 public struct ResultDetailView: View {
     @EnvironmentObject var client: APIClient
@@ -61,14 +64,35 @@ public struct ResultDetailView: View {
                                 .font(.headline)
                             
                             ForEach(client.rankedCandidates.prefix(3)) { item in
-                                HStack {
-                                    Text(item.name)
-                                        .font(.subheadline).fontWeight(.bold)
-                                    Spacer()
-                                    Text(String(format: "%.2f", item.score))
-                                        .font(.system(.subheadline, design: .monospaced))
-                                    Text("参考スコア")
-                                        .font(.system(size: 8)).foregroundStyle(.secondary)
+                                VStack(alignment: .leading, spacing: 6) {
+                                    HStack(spacing: 8) {
+                                        Text(item.name)
+                                            .font(.subheadline).fontWeight(.bold)
+                                        
+                                        if let confidence = item.confidence {
+                                            Text(confidence == "high" ? "高信頼" : confidence == "medium" ? "中信頼" : "要追試")
+                                                .font(.system(size: 8, weight: .bold))
+                                                .padding(.horizontal, 6)
+                                                .padding(.vertical, 2)
+                                                .background(confidence == "high" ? Color.green.opacity(0.15) : confidence == "medium" ? Color.orange.opacity(0.15) : Color.gray.opacity(0.15))
+                                                .foregroundColor(confidence == "high" ? .green : confidence == "medium" ? .orange : .gray)
+                                                .clipShape(Capsule())
+                                        }
+                                        
+                                        Spacer()
+                                        
+                                        Text(String(format: "%.2f", item.score))
+                                            .font(.system(.subheadline, design: .monospaced))
+                                        Text("参考スコア")
+                                            .font(.system(size: 8)).foregroundStyle(.secondary)
+                                    }
+                                    
+                                    if let explanation = item.explanation, !explanation.isEmpty {
+                                        Text(explanation)
+                                            .font(.system(size: 10))
+                                            .foregroundStyle(.secondary)
+                                            .lineLimit(2)
+                                    }
                                 }
                                 .padding(.vertical, 4)
                             }
@@ -204,6 +228,33 @@ public struct ResultDetailView: View {
     }
     
     private func triggerShareSheet() {
-        // システム標準の共有機能の呼び出しシミュレーション
+        let text = client.exportShareText(
+            includeLocation: shareIncludeLocation,
+            includeMedia: shareIncludeMedia,
+            includeNotes: shareIncludeNotes
+        )
+        
+        #if canImport(UIKit)
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let rootVC = windowScene.windows.first?.rootViewController else {
+            print("Failed to access rootViewController for sharing.")
+            return
+        }
+        
+        let activityVC = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+        
+        // Support iPad popovers
+        if let popover = activityVC.popoverPresentationController {
+            popover.sourceView = rootVC.view
+            popover.sourceRect = CGRect(x: rootVC.view.bounds.midX, y: rootVC.view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+        
+        rootVC.present(activityVC, animated: true, completion: nil)
+        #else
+        print("--- [SHARE REPORT (Console Fallback)] ---")
+        print(text)
+        print("-----------------------------------------")
+        #endif
     }
 }

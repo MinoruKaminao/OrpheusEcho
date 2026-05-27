@@ -269,6 +269,11 @@ public struct ExplorationView: View {
         .navigationDestination(isPresented: $navigateToRanking) {
             CandidateRankingView()
         }
+        .onAppear {
+            Task {
+                await client.fetchCandidates(species: client.currentSession?.species ?? .dog)
+            }
+        }
     }
 
     private func recordReaction(_ reaction: String) {

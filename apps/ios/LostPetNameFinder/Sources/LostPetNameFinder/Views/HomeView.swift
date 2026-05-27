@@ -5,6 +5,7 @@ public struct HomeView: View {
     @State private var navigateToSelection = false
     @State private var navigateToHistory = false
     @State private var navigateToSettings = false
+    @State private var navigateToKnownAnimal = false
 
     public init() {}
 
@@ -91,6 +92,37 @@ public struct HomeView: View {
                         }
 
                         Button {
+                            navigateToKnownAnimal = true
+                        } label: {
+                            HStack {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.title)
+                                    .foregroundStyle(Color(red: 0.1, green: 0.12, blue: 0.2))
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("既知名データを登録")
+                                        .font(.headline)
+                                        .fontWeight(.bold)
+                                        .foregroundStyle(Color(red: 0.1, green: 0.12, blue: 0.2))
+                                    Text("正例・負例を集め、AI精度を向上")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .minHeightTapTarget()
+                            .background(Color.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .stroke(Color(red: 0.86, green: 0.89, blue: 0.94), lineWidth: 1)
+                            )
+                        }
+
+                        Button {
                             navigateToSettings = true
                         } label: {
                             HStack {
@@ -142,6 +174,9 @@ public struct HomeView: View {
             }
             .navigationDestination(isPresented: $navigateToSettings) {
                 SettingsView()
+            }
+            .navigationDestination(isPresented: $navigateToKnownAnimal) {
+                KnownAnimalRegistrationView()
             }
         }
     }

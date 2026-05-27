@@ -12,6 +12,15 @@ public class MockAPIClient: ObservableObject {
     @Published public var errorMessage: String?
     @Published public var isOffline = false
     
+    // Phase 6 placeholders
+    @Published public var selectedCountryCode: String = "JP"
+    @Published public var selectedLanguageCode: String = "ja-JP"
+    @Published public var selectedTTSProfileId: String? = nil
+    
+    @Published public var availableCountries: [Country] = []
+    @Published public var availableLanguages: [Language] = []
+    @Published public var availableTTSProfiles: [TTSProfile] = []
+    
     public init() {
         // 初期シードデータ
         self.candidates = [
@@ -60,7 +69,7 @@ public class MockAPIClient: ObservableObject {
         self.isLoading = false
     }
     
-    public func fetchCandidates(species: Species) async {
+    public func fetchCandidates(species: Species, country: String? = nil, language: String? = nil) async {
         self.isLoading = true
         try? await Task.sleep(nanoseconds: 500_000_000)
         self.isLoading = false
@@ -152,5 +161,27 @@ public class MockAPIClient: ObservableObject {
         }
         
         self.isLoading = false
+    }
+
+    public func fetchCountries() async {
+        self.availableCountries = [
+            Country(code: "JP", name: "日本", default_language: "ja-JP"),
+            Country(code: "US", name: "United States", default_language: "en-US")
+        ]
+    }
+    public func fetchLanguages() async {
+        self.availableLanguages = [
+            Language(code: "ja-JP", name: "日本語"),
+            Language(code: "en-US", name: "English (US)")
+        ]
+    }
+    public func fetchTTSProfiles() async {
+        self.availableTTSProfiles = [
+            TTSProfile(id: "tts_jp_female", language_code: "ja-JP", voice_name: "Kyoko", gender: "female", speaking_rate: 1.0, pitch: 1.0, engine_type: "mock"),
+            TTSProfile(id: "tts_en_female", language_code: "en-US", voice_name: "Samantha", gender: "female", speaking_rate: 1.0, pitch: 1.0, engine_type: "mock")
+        ]
+    }
+    public func requestTTSPreview(text: String, profileId: String) async -> TTSPreviewResponse? {
+        return TTSPreviewResponse(audio_url: "http://localhost:8001/exports/tts/mock.m4a", status: "ready")
     }
 }

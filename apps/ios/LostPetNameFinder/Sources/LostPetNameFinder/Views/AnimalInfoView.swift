@@ -78,6 +78,55 @@ public struct AnimalInfoView: View {
                                     .minHeightTapTarget()
                             }
 
+                            // Country Selector
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("探索対象国")
+                                    .font(.caption)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(.secondary)
+                                Picker("探索対象国", selection: $client.selectedCountryCode) {
+                                    if client.availableCountries.isEmpty {
+                                        Text("日本").tag("JP")
+                                        Text("United States").tag("US")
+                                    } else {
+                                        ForEach(client.availableCountries) { country in
+                                            Text(country.name).tag(country.code)
+                                        }
+                                    }
+                                }
+                                .pickerStyle(MenuPickerStyle())
+                                .minHeightTapTarget()
+                                .onChange(of: client.selectedCountryCode) { newCountry in
+                                    if let country = client.availableCountries.first(where: { $0.code == newCountry }) {
+                                        client.selectedLanguageCode = country.default_language
+                                    } else if newCountry == "US" {
+                                        client.selectedLanguageCode = "en-US"
+                                    } else if newCountry == "JP" {
+                                        client.selectedLanguageCode = "ja-JP"
+                                    }
+                                }
+                            }
+
+                            // Language Selector
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text("探索言語")
+                                    .font(.caption)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(.secondary)
+                                Picker("探索言語", selection: $client.selectedLanguageCode) {
+                                    if client.availableLanguages.isEmpty {
+                                        Text("日本語").tag("ja-JP")
+                                        Text("English (US)").tag("en-US")
+                                    } else {
+                                        ForEach(client.availableLanguages) { lang in
+                                            Text(lang.name).tag(lang.code)
+                                        }
+                                    }
+                                }
+                                .pickerStyle(MenuPickerStyle())
+                                .minHeightTapTarget()
+                            }
+
                             // Notes
                             VStack(alignment: .leading, spacing: 6) {
                                 Text("特徴・備考メモ")
@@ -144,6 +193,12 @@ public struct AnimalInfoView: View {
         }
         .navigationDestination(isPresented: $navigateToExploration) {
             ExplorationView()
+        }
+        .onAppear {
+            Task {
+                await client.fetchCountries()
+                await client.fetchLanguages()
+            }
         }
     }
 }

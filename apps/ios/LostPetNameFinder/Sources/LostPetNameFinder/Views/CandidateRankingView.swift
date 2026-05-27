@@ -48,17 +48,26 @@ public struct CandidateRankingView: View {
                                             .foregroundStyle(index < 3 ? Color(red: 0.18, green: 0.42, blue: 1.0) : .secondary)
                                             .frame(width: 24)
 
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            HStack(spacing: 6) {
+                                        VStack(alignment: .leading, spacing: 6) {
+                                            HStack(spacing: 8) {
                                                 Text(item.name)
                                                     .font(.headline)
                                                     .foregroundStyle(Color(red: 0.1, green: 0.12, blue: 0.2))
                                                 
-                                                if item.uncertainty_flag {
+                                                if let confidence = item.confidence {
+                                                    Text(confidence == "high" ? "高信頼" : confidence == "medium" ? "中信頼" : "要追試")
+                                                        .font(.system(size: 8, weight: .bold))
+                                                        .padding(.horizontal, 6)
+                                                        .padding(.vertical, 2)
+                                                        .background(confidence == "high" ? Color.green.opacity(0.15) : confidence == "medium" ? Color.orange.opacity(0.15) : Color.gray.opacity(0.15))
+                                                        .foregroundColor(confidence == "high" ? .green : confidence == "medium" ? .orange : .gray)
+                                                        .clipShape(Capsule())
+                                                }
+                                                
+                                                if item.uncertainty_flag && item.confidence == nil {
                                                     Image(systemName: "questionmark.circle")
                                                         .font(.caption2)
                                                         .foregroundStyle(.orange)
-                                                        .help("試行回数が不足しているためスコアの信頼性が低い候補です")
                                                 }
                                             }
 
@@ -74,6 +83,15 @@ public struct CandidateRankingView: View {
                                                 }
                                             }
                                             .frame(height: 6)
+                                            
+                                            // AI Explanation
+                                            if let explanation = item.explanation, !explanation.isEmpty {
+                                                Text(explanation)
+                                                    .font(.system(size: 10))
+                                                    .foregroundStyle(.secondary)
+                                                    .lineLimit(2)
+                                                    .padding(.top, 2)
+                                            }
                                         }
 
                                         Spacer()
