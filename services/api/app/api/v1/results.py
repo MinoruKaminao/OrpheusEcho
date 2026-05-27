@@ -1,16 +1,24 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 
-from app.api.deps import result_service
+from app.api.deps import get_result_service
 from app.core.responses import ok_response
+from app.services.result_service import ResultService
 
 router = APIRouter()
 
 
 @router.get("/sessions/{session_id}/results")
-def get_results(session_id: str) -> dict:
-    return ok_response(result_service.get_session_results(session_id))
+def get_results(
+    session_id: str,
+    service: ResultService = Depends(get_result_service)
+) -> dict:
+    return ok_response(service.get_session_results(session_id))
 
 
 @router.get("/sessions/{session_id}/export")
-def export_results(session_id: str, format: str = Query(...)) -> dict:
-    return ok_response(result_service.export(session_id, format))
+def export_results(
+    session_id: str,
+    format: str = Query(...),
+    service: ResultService = Depends(get_result_service)
+) -> dict:
+    return ok_response(service.export(session_id, format))

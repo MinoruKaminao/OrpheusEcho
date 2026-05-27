@@ -11,8 +11,12 @@ app/api/v1/results.py
 app/api/v1/sessions.py
 app/api/v1/trials.py
 app/core/__init__.py
+app/core/config.py
+app/core/database.py
 app/core/responses.py
+app/models/db_models.py
 app/models/entities.py
+app/repositories/db_repositories.py
 app/repositories/in_memory.py
 app/schemas/candidate.py
 app/schemas/common.py
