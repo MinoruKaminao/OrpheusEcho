@@ -17,6 +17,8 @@ class DbSession(Base):
     language = Column(String(15), nullable=True)
     animal_notes = Column(Text, nullable=True)
     location_text = Column(Text, nullable=True)
+    latitude = Column(Numeric(9, 6), nullable=True)
+    longitude = Column(Numeric(9, 6), nullable=True)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     completed_at = Column(DateTime, nullable=True)
     sync_status = Column(String(20), nullable=False, default="completed")
@@ -52,6 +54,7 @@ class DbTrial(Base):
     ended_at = Column(DateTime, nullable=True)
     manual_reaction = Column(String(50), nullable=True) # "reaction_yes" | "reaction_weak" | "reaction_no"
     computed_score = Column(Numeric(3, 2), nullable=True)
+    ambient_noise_db = Column(Numeric(4, 1), nullable=True)
     note = Column(Text, nullable=True)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
@@ -227,5 +230,50 @@ class DbTTSProfile(Base):
     speaking_rate = Column(Numeric, nullable=False, default=1.0)
     pitch = Column(Numeric, nullable=False, default=1.0)
     engine_type = Column(String(20), nullable=False, default="mock")
+
+
+class DbJokeNameProfile(Base):
+    __tablename__ = "joke_name_profiles"
+
+    id = Column(String(50), primary_key=True)
+    name = Column(String(100), nullable=False)
+    type = Column(String(50), nullable=False)  # "common_name" | "nickname" | "joke_safe"
+    language_code = Column(String(15), nullable=True)
+    country_code = Column(String(10), nullable=True)
+    is_active = Column(Boolean, nullable=False, default=True)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+
+class DbJokeSession(Base):
+    __tablename__ = "joke_sessions"
+
+    id = Column(String(50), primary_key=True)
+    selected_country = Column(String(10), nullable=True)
+    selected_language = Column(String(15), nullable=True)
+    selected_age_band = Column(String(50), nullable=True)
+    tone_type = Column(String(50), nullable=True)
+    image_path = Column(String(512), nullable=True)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    completed_at = Column(DateTime, nullable=True)
+
+    # Relationships
+    reactions = relationship("DbJokeReactionLog", back_populates="session", cascade="all, delete-orphan")
+
+
+class DbJokeReactionLog(Base):
+    __tablename__ = "joke_reaction_logs"
+
+    id = Column(String(50), primary_key=True)
+    joke_session_id = Column(String(50), ForeignKey("joke_sessions.id", ondelete="CASCADE"), nullable=False)
+    joke_profile_id = Column(String(50), ForeignKey("joke_name_profiles.id", ondelete="CASCADE"), nullable=False)
+    smile_score = Column(Numeric(3, 2), nullable=False, default=0.0)
+    laugh_score = Column(Numeric(3, 2), nullable=False, default=0.0)
+    manual_reaction = Column(String(50), nullable=True)  # "reaction_yes" | "reaction_no" | "reaction_meh"
+    composite_score = Column(Numeric(3, 2), nullable=False, default=0.0)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    # Relationships
+    session = relationship("DbJokeSession", back_populates="reactions")
+    profile = relationship("DbJokeNameProfile")
 
 

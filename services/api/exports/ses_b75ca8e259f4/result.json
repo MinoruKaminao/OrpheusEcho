@@ -1,0 +1,56 @@
+{
+  "session": {
+    "session_id": "ses_b75ca8e259f4",
+    "species": "cat",
+    "temp_animal_id": "CAT-OFFLINE-999",
+    "location_text": null,
+    "coat_color": null,
+    "age_hint": null,
+    "country_code": "JP",
+    "language_code": "ja-JP",
+    "multi_country_mode": false,
+    "notes": "Captured during offline mode test",
+    "status": "closed",
+    "created_at": "2026-05-28T22:38:35.391741Z",
+    "updated_at": "2026-05-28T22:38:35.397977Z"
+  },
+  "top_candidates": [
+    {
+      "candidate_id": "cand_003",
+      "name": "ルナ",
+      "score": 0.78,
+      "uncertainty_flag": true,
+      "confidence": "low",
+      "explanation": "呼びかけに対し、素早い頭部回転、強い注視（視線移動）、耳の方向転換が観察されました（反応遅延: 3.0秒）。",
+      "source": "model_assisted",
+      "model_version": "lightweight-v1.0.0"
+    }
+  ],
+  "trial_count": 1,
+  "trials": [
+    {
+      "trial_id": "trl_8ce1585eb35b",
+      "session_id": "ses_b75ca8e259f4",
+      "candidate_id": "cand_003",
+      "variant_text": "ルナ",
+      "voice_type": "female_bright",
+      "modulation_type": "unknown",
+      "played_at": "2026-05-28T22:38:35Z",
+      "manual_flag": "reaction_yes",
+      "created_at": "2026-05-28T22:38:35.401772+00:00Z",
+      "features": {
+        "trial_id": "trl_8ce1585eb35b",
+        "gaze_shift_score": 0.88,
+        "ear_motion_score": 0.7,
+        "head_turn_score": 0.85,
+        "posture_change_score": 0.0,
+        "approach_score": 0.59,
+        "vocalization_score": 0.08,
+        "repeatability_score": 0.84,
+        "latency_ms": null,
+        "manual_score": null,
+        "model_version": null
+      }
+    }
+  ]
+}

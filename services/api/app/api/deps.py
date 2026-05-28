@@ -312,3 +312,10 @@ def get_tts_service(db: Session = Depends(get_db)) -> TTSService:
     return TTSService(repo)
 
 
+def get_joke_service(db: Session = Depends(get_db)) -> JokeService:
+    from app.repositories.joke_repository import JokeRepository
+    from app.services.joke_service import JokeService
+    repo = JokeRepository(db)
+    return JokeService(repo)
+
+

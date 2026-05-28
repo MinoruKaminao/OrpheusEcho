@@ -588,6 +588,156 @@ struct TestRunner {
         
         print("SUCCESS: Phase 6 Internationalization verified!")
         
+        // --- Scenario 7: Joke Mode Validation ---
+        print("\n=== Scenario 7: Joke Mode Validation ===")
+        print("1. Creating Joke Session...")
+        await client.createJokeSession(
+            country: "JP",
+            language: "ja-JP",
+            ageBand: "30s_like",
+            tone: "casual"
+        )
+        guard let jokeSession = client.currentJokeSession else {
+            print("FAILED: Joke session creation failed.")
+            exit(1)
+        }
+        print("Joke Session Created ID: \(jokeSession.joke_session_id)")
+        
+        print("\n2. Uploading Joke Image...")
+        let dummyImageData = "dummy-image-bytes-data-must-be-more-than-100-bytes-long-to-trigger-has-face-true-in-joke-mode-implementation-1234567890".data(using: .utf8)!
+        let hasFace = await client.uploadJokeImage(
+            jokeSessionId: jokeSession.joke_session_id,
+            fileName: "face.jpg",
+            fileData: dummyImageData
+        )
+        print("Image upload completed. Has Face: \(hasFace)")
+        if !hasFace {
+            print("FAILED: Joke image upload or face detection failed.")
+            exit(1)
+        }
+        
+        print("\n3. Generating Joke Candidates...")
+        await client.fetchJokeCandidates(jokeSessionId: jokeSession.joke_session_id)
+        let jokeCands = client.jokeCandidates
+        print("Joke Candidates generated count: \(jokeCands.count)")
+        for c in jokeCands {
+            print(" - \(c.name) (Type: \(c.type))")
+        }
+        if jokeCands.isEmpty {
+            print("FAILED: Joke candidates list is empty.")
+            exit(1)
+        }
+        
+        print("\n4. Recording Reactions for Candidates...")
+        for c in jokeCands.prefix(2) {
+            print("Recording reaction for: \(c.name)")
+            await client.recordJokeReaction(
+                jokeSessionId: jokeSession.joke_session_id,
+                candidateId: c.joke_profile_id,
+                smileScore: 0.85,
+                laughScore: 0.20,
+                reaction: "reaction_yes"
+            )
+        }
+        
+        print("\n5. Fetching Joke Results...")
+        if let jokeResult = await client.fetchJokeResults(jokeSessionId: jokeSession.joke_session_id) {
+            print("Joke Results Session ID: \(jokeResult.joke_session_id)")
+            print("Result Card URL: \(jokeResult.result_card_url ?? "nil")")
+            for r in jokeResult.top_candidates {
+                print(" - \(r.name): score \(r.composite_score)")
+            }
+            if jokeResult.top_candidates.isEmpty {
+                print("FAILED: Top candidates in joke results is empty.")
+                exit(1)
+            }
+            if jokeResult.result_card_url == nil {
+                print("FAILED: Result card URL is nil.")
+                exit(1)
+            }
+        } else {
+            print("FAILED: Failed to fetch joke results.")
+            exit(1)
+        }
+        
+        print("SUCCESS: Phase 7 Joke Mode verified!")
+        
+        // --- Scenario 8: Outdoor Advanced Exploration (Heatmap & Noise Calibration) ---
+        print("\n=== Scenario 8: Outdoor Advanced Exploration ===")
+        print("1. Creating Coordinate-Aware Session (代々木公園)...")
+        await client.createSession(
+            species: .dog,
+            tempId: "DOG-OUTDOOR",
+            notes: "Testing coordinates Yoyogi park",
+            locationText: "Yoyogi Park South Gate",
+            coatColor: "Black-Tan",
+            ageHint: "Young",
+            latitude: 35.6698,
+            longitude: 139.6975
+        )
+        guard let outdoorSession = client.currentSession else {
+            print("FAILED: Failed to create outdoor session.")
+            exit(1)
+        }
+        print("Outdoor Session Created ID: \(outdoorSession.session_id)")
+        print("Coordinates: (\(outdoorSession.latitude ?? 0.0), \(outdoorSession.longitude ?? 0.0))")
+        if outdoorSession.latitude != 35.6698 || outdoorSession.longitude != 139.6975 {
+            print("FAILED: Coordinates were not saved or returned correctly.")
+            exit(1)
+        }
+        
+        print("\n2. Fetching Candidates for Yoyogi Park...")
+        await client.fetchCandidates(species: .dog)
+        guard let candidate = client.candidates.first else {
+            print("FAILED: Candidates list is empty.")
+            exit(1)
+        }
+        print("Candidate to play: \(candidate.name)")
+        
+        print("\n3. Recording Trial with Environmental Noise Decibels (68.2 dB)...")
+        await client.recordTrial(
+            candidateId: candidate.candidate_id,
+            name: candidate.name,
+            reaction: "reaction_yes",
+            ambientNoiseDb: 68.2
+        )
+        guard let loggedTrial = client.trials.last(where: { $0.candidate_id == candidate.candidate_id }) else {
+            print("FAILED: Trial record not found in client history.")
+            exit(1)
+        }
+        print("Trial Recorded ID: \(loggedTrial.trial_id)")
+        print("Recorded Ambient Noise: \(loggedTrial.ambient_noise_db ?? 0.0) dB")
+        if loggedTrial.ambient_noise_db != 68.2 {
+            print("FAILED: Trial ambient noise decibels were not saved correctly.")
+            exit(1)
+        }
+        
+        print("\n4. Closing Session...")
+        await client.closeSession()
+        
+        print("\n5. Fetching Heatmap Points from API...")
+        await client.fetchHeatmapPoints(species: "dog")
+        print("Heatmap points returned count: \(client.heatmapPoints.count)")
+        for point in client.heatmapPoints {
+            print(" - Point ID: \(point.session_id), Coordinates: (\(point.latitude), \(point.longitude)), Best Name: \(point.best_candidate_name), Score: \(point.highest_score), Avg Noise: \(point.avg_ambient_noise_db ?? 0.0) dB")
+        }
+        
+        guard let myPoint = client.heatmapPoints.first(where: { $0.session_id == outdoorSession.session_id }) else {
+            print("FAILED: Newly created session is missing from the heatmap points list.")
+            exit(1)
+        }
+        
+        if myPoint.latitude != 35.6698 || myPoint.longitude != 139.6975 {
+            print("FAILED: Heatmap point coordinates mismatch.")
+            exit(1)
+        }
+        if myPoint.avg_ambient_noise_db != 68.2 {
+            print("FAILED: Heatmap point noise average mismatch.")
+            exit(1)
+        }
+        
+        print("SUCCESS: Phase 8 Outdoor Advanced Exploration verified!")
+        
         print("\n=== SUCCESS: All Scenario tests completed successfully! ===")
     }
 }

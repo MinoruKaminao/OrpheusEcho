@@ -17,6 +17,8 @@ public struct Session: Identifiable, Codable {
     public let species: Species
     public var temp_animal_id: String?
     public var location_text: String?
+    public var latitude: Double?
+    public var longitude: Double?
     public var coat_color: String?
     public var age_hint: String?
     public var country_code: String?
@@ -32,6 +34,8 @@ public struct Session: Identifiable, Codable {
         species: Species,
         temp_animal_id: String? = nil,
         location_text: String? = nil,
+        latitude: Double? = nil,
+        longitude: Double? = nil,
         coat_color: String? = nil,
         age_hint: String? = nil,
         country_code: String? = nil,
@@ -46,6 +50,8 @@ public struct Session: Identifiable, Codable {
         self.species = species
         self.temp_animal_id = temp_animal_id
         self.location_text = location_text
+        self.latitude = latitude
+        self.longitude = longitude
         self.coat_color = coat_color
         self.age_hint = age_hint
         self.country_code = country_code
@@ -128,6 +134,29 @@ public struct Trial: Identifiable, Codable {
     public let modulation_type: String
     public let played_at: Date
     public var manual_flag: String?
+    public var ambient_noise_db: Double?
+
+    public init(
+        trial_id: String,
+        session_id: String,
+        candidate_id: String,
+        variant_text: String,
+        voice_type: String,
+        modulation_type: String,
+        played_at: Date,
+        manual_flag: String?,
+        ambient_noise_db: Double? = nil
+    ) {
+        self.trial_id = trial_id
+        self.session_id = session_id
+        self.candidate_id = candidate_id
+        self.variant_text = variant_text
+        self.voice_type = voice_type
+        self.modulation_type = modulation_type
+        self.played_at = played_at
+        self.manual_flag = manual_flag
+        self.ambient_noise_db = ambient_noise_db
+    }
 }
 
 public struct ReactionFeatures: Codable {
@@ -427,6 +456,97 @@ public struct TTSProfile: Identifiable, Codable {
 public struct TTSPreviewResponse: Codable {
     public let audio_url: String
     public let status: String
+}
+
+
+public struct JokeSession: Identifiable, Codable {
+    public var id: String { joke_session_id }
+    public let joke_session_id: String
+    public let selected_country: String?
+    public let selected_language: String?
+    public let selected_age_band: String?
+    public let tone_type: String?
+    public let image_path: String?
+    public let created_at: String?
+    public let completed_at: String?
+}
+
+public struct JokeCandidate: Identifiable, Codable {
+    public var id: String { joke_profile_id }
+    public let joke_profile_id: String
+    public let name: String
+    public let type: String
+    public let language_code: String?
+    public let country_code: String?
+    public let is_active: Bool
+}
+
+public struct JokeReactionResponse: Codable {
+    public let joke_reaction_id: String
+    public let composite_score: Double
+}
+
+public struct JokeResultCandidate: Codable {
+    public let name: String
+    public let composite_score: Double
+}
+
+public struct JokeResult: Codable {
+    public let joke_session_id: String
+    public let top_candidates: [JokeResultCandidate]
+    public let result_card_url: String?
+}
+
+#if canImport(UIKit)
+import UIKit
+public typealias PlatformImage = UIImage
+#elseif canImport(AppKit)
+import AppKit
+public typealias PlatformImage = NSImage
+#endif
+
+import SwiftUI
+
+extension Image {
+    public init(platformImage: PlatformImage) {
+        #if canImport(UIKit)
+        self.init(uiImage: platformImage)
+        #elseif canImport(AppKit)
+        self.init(nsImage: platformImage)
+        #endif
+    }
+}
+
+#if !os(iOS)
+public enum NavigationBarItem {
+    public enum TitleDisplayMode {
+        case inline
+        case large
+        case automatic
+    }
+}
+
+extension View {
+    public func navigationBarTitleDisplayMode(_ displayMode: NavigationBarItem.TitleDisplayMode) -> some View {
+        self
+    }
+}
+#endif
+
+public struct HeatmapPoint: Codable, Identifiable {
+    public var id: String { session_id }
+    public let session_id: String
+    public let species: String
+    public let latitude: Double
+    public let longitude: Double
+    public let best_candidate_name: String
+    public let highest_score: Double
+    public let avg_ambient_noise_db: Double?
+    public let created_at: String?
+}
+
+public struct HeatmapResponse: Codable {
+    public let points: [HeatmapPoint]
 }
 
 

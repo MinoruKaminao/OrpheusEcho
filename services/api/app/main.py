@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse
 from app.api.router import api_router
 from app.core.database import Base, engine, SessionLocal
 from app.core.responses import app_exception_handler, validation_exception_handler
-from app.models.db_models import DbCandidate, DbCountry, DbLanguage, DbCountryDictionary, DbTTSProfile
+from app.models.db_models import DbCandidate, DbCountry, DbLanguage, DbCountryDictionary, DbTTSProfile, DbJokeNameProfile
 
 
 
@@ -82,6 +82,31 @@ def create_app() -> FastAPI:
                 DbTTSProfile(id="tts_en_male", language_code="en-US", voice_name="Daniel", gender="male", speaking_rate=1.0, pitch=1.0, engine_type="mock"),
             ]
             db.add_all(tts_profiles)
+            db.commit()
+
+        if db.query(DbJokeNameProfile).count() == 0:
+            joke_seeds = [
+                DbJokeNameProfile(id="jkp_jp_001", name="たっちゃん", type="nickname", language_code="ja-JP", country_code="JP", is_active=True),
+                DbJokeNameProfile(id="jkp_jp_002", name="よっちゃん", type="nickname", language_code="ja-JP", country_code="JP", is_active=True),
+                DbJokeNameProfile(id="jkp_jp_003", name="モモっち", type="nickname", language_code="ja-JP", country_code="JP", is_active=True),
+                DbJokeNameProfile(id="jkp_jp_004", name="部長っぽい人", type="joke_safe", language_code="ja-JP", country_code="JP", is_active=True),
+                DbJokeNameProfile(id="jkp_jp_005", name="社長さん", type="joke_safe", language_code="ja-JP", country_code="JP", is_active=True),
+                DbJokeNameProfile(id="jkp_jp_006", name="プリン好き", type="joke_safe", language_code="ja-JP", country_code="JP", is_active=True),
+                DbJokeNameProfile(id="jkp_jp_007", name="お昼寝のプロ", type="joke_safe", language_code="ja-JP", country_code="JP", is_active=True),
+                DbJokeNameProfile(id="jkp_jp_008", name="リーダー", type="joke_safe", language_code="ja-JP", country_code="JP", is_active=True),
+                DbJokeNameProfile(id="jkp_jp_009", name="癒やし担当", type="joke_safe", language_code="ja-JP", country_code="JP", is_active=True),
+                DbJokeNameProfile(id="jkp_jp_010", name="アイディアマン", type="joke_safe", language_code="ja-JP", country_code="JP", is_active=True),
+                # US
+                DbJokeNameProfile(id="jkp_us_001", name="Buddy", type="nickname", language_code="en-US", country_code="US", is_active=True),
+                DbJokeNameProfile(id="jkp_us_002", name="Smiley", type="nickname", language_code="en-US", country_code="US", is_active=True),
+                DbJokeNameProfile(id="jkp_us_003", name="Sunshine", type="nickname", language_code="en-US", country_code="US", is_active=True),
+                DbJokeNameProfile(id="jkp_us_004", name="Chief", type="joke_safe", language_code="en-US", country_code="US", is_active=True),
+                DbJokeNameProfile(id="jkp_us_005", name="Boss", type="joke_safe", language_code="en-US", country_code="US", is_active=True),
+                DbJokeNameProfile(id="jkp_us_006", name="Coffee Lover", type="joke_safe", language_code="en-US", country_code="US", is_active=True),
+                DbJokeNameProfile(id="jkp_us_007", name="Nap Champion", type="joke_safe", language_code="en-US", country_code="US", is_active=True),
+                DbJokeNameProfile(id="jkp_us_008", name="Idea Machine", type="joke_safe", language_code="en-US", country_code="US", is_active=True),
+            ]
+            db.add_all(joke_seeds)
             db.commit()
 
 

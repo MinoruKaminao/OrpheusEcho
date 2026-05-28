@@ -36,6 +36,8 @@ class SessionRepository:
             "country": payload.get("country_code"),
             "language": payload.get("language_code"),
             "location_text": payload.get("location_text"),
+            "latitude": payload.get("latitude"),
+            "longitude": payload.get("longitude"),
             "animal_notes": " | ".join(extra_notes) if extra_notes else None,
             "sync_status": "completed",
         }
@@ -66,6 +68,10 @@ class SessionRepository:
             db_session.language = payload["language_code"]
         if "location_text" in payload:
             db_session.location_text = payload["location_text"]
+        if "latitude" in payload:
+            db_session.latitude = payload["latitude"]
+        if "longitude" in payload:
+            db_session.longitude = payload["longitude"]
         if "status" in payload:
             db_session.status = payload["status"]
             
@@ -108,6 +114,8 @@ class SessionRepository:
         coat = None
         age = None
         notes = db_session.animal_notes
+        latitude = float(db_session.latitude) if db_session.latitude is not None else None
+        longitude = float(db_session.longitude) if db_session.longitude is not None else None
 
         if db_session.animal_notes:
             parts = db_session.animal_notes.split(" | ")
@@ -128,6 +136,8 @@ class SessionRepository:
             "species": db_session.species,
             "temp_animal_id": temp_id,
             "location_text": db_session.location_text,
+            "latitude": latitude,
+            "longitude": longitude,
             "coat_color": coat,
             "age_hint": age,
             "country_code": db_session.country,
@@ -138,6 +148,54 @@ class SessionRepository:
             "created_at": db_session.created_at.isoformat() + "Z" if db_session.created_at else None,
             "updated_at": db_session.updated_at.isoformat() + "Z" if db_session.updated_at else None,
         }
+
+    def list_heatmap_points(self, species: str | None = None) -> list[dict]:
+        query = self.db.query(DbSession).filter(DbSession.latitude.isnot(None), DbSession.longitude.isnot(None))
+        if species:
+            query = query.filter(DbSession.species == species)
+            
+        sessions = query.all()
+        points = []
+        for s in sessions:
+            best_trial = None
+            max_score = -1.0
+            noise_values = []
+            
+            for t in s.trials:
+                if t.ambient_noise_db is not None:
+                    noise_values.append(float(t.ambient_noise_db))
+                
+                score = float(t.computed_score) if t.computed_score is not None else 0.0
+                if t.manual_reaction == "reaction_yes":
+                    score = max(score, 0.9)
+                elif t.manual_reaction == "reaction_weak":
+                    score = max(score, 0.5)
+                    
+                if score > max_score:
+                    max_score = score
+                    best_trial = t
+                    
+            best_name = "未検出"
+            if best_trial:
+                cand = self.db.query(DbCandidate).filter(DbCandidate.id == best_trial.candidate_id).first()
+                if cand:
+                    best_name = cand.display_name
+                else:
+                    best_name = best_trial.playback_text
+                    
+            avg_noise = sum(noise_values) / len(noise_values) if noise_values else None
+            
+            points.append({
+                "session_id": s.id,
+                "species": s.species,
+                "latitude": float(s.latitude),
+                "longitude": float(s.longitude),
+                "best_candidate_name": best_name,
+                "highest_score": float(max(0.0, max_score)) if best_trial else 0.0,
+                "avg_ambient_noise_db": avg_noise,
+                "created_at": s.created_at.isoformat() + "Z" if s.created_at else None
+            })
+        return points
 
 
 class CandidateRepository:
@@ -241,6 +299,7 @@ class TrialRepository:
             "voice_profile_id": payload.get("voice_type"),
             "started_at": payload.get("played_at") or datetime.utcnow(),
             "manual_reaction": payload.get("manual_flag"),
+            "ambient_noise_db": payload.get("ambient_noise_db"),
         }
         db_trial = DbTrial(**mapped_payload)
         self.db.add(db_trial)
@@ -293,4 +352,5 @@ class TrialRepository:
             "modulation_type": "unknown", # default/mock placeholder
             "played_at": db_trial.started_at.isoformat() + "Z" if db_trial.started_at else None,
             "manual_flag": db_trial.manual_reaction,
+            "ambient_noise_db": float(db_trial.ambient_noise_db) if db_trial.ambient_noise_db is not None else None,
         }

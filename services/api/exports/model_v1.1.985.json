@@ -1,0 +1,21 @@
+{
+  "model_version": "1.1.985",
+  "weights": {
+    "w_head_turn": 0.173,
+    "w_gaze_shift": 0.174,
+    "w_ear_motion": 0.093,
+    "w_approach": 0.14,
+    "w_vocalization": 0.093,
+    "w_latency": 0.093,
+    "w_repeatability": 0.093,
+    "w_manual": 0.14
+  },
+  "hyperparameters": {
+    "confidence_high_threshold": 0.8,
+    "confidence_medium_threshold": 0.6
+  },
+  "accuracy_metrics": {
+    "f1_score": 0.8,
+    "auc": 0.8200000000000001
+  }
+}

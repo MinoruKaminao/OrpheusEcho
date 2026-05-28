@@ -12,6 +12,7 @@ class TrialCreate(BaseModel):
     modulation_type: str
     played_at: datetime
     manual_flag: str | None = None
+    ambient_noise_db: float | None = None
 
 
 class TrialFeatureCreate(BaseModel):

@@ -8,6 +8,12 @@ public struct ExplorationView: View {
     // カメラのパーミッション状態モック
     @State private var isCameraAuthorized = true
     @State private var isMuted = false
+    
+    // Phase 8: 屋外環境騒音測定と動的TTS
+    @State private var noiseMonitor = NoiseMonitor()
+    @State private var currentNoiseDb: Double = 40.0
+    @State private var isSpeechPlaying = false
+    @State private var isMeasuringNoise = false
 
     public init() {}
 
@@ -101,20 +107,20 @@ public struct ExplorationView: View {
 
                         // TTS Audio Playback Button
                         Button {
-                            // 音声再生シミュレーション
-                            NSSoundMock.play()
+                            playTTS(text: currentCand.name)
                         } label: {
                             HStack(spacing: 8) {
-                                Image(systemName: "speaker.wave.3.fill")
-                                Text("音声を再生")
+                                Image(systemName: isSpeechPlaying ? "speaker.wave.3.fill" : "speaker.wave.2.circle.fill")
+                                Text(isMeasuringNoise ? "騒音測定中..." : (isSpeechPlaying ? "再生中..." : "音声を再生"))
                                     .fontWeight(.bold)
                             }
                             .padding(.horizontal, 24)
                             .padding(.vertical, 12)
-                            .background(Color(red: 0.18, green: 0.42, blue: 1.0))
+                            .background(isSpeechPlaying ? Color.orange : Color(red: 0.18, green: 0.42, blue: 1.0))
                             .foregroundStyle(.white)
                             .clipShape(Capsule())
                         }
+                        .disabled(isSpeechPlaying || isMeasuringNoise)
                         .minHeightTapTarget()
                         
                         // AI特徴量（推定動作マーカー）表示エリア
@@ -156,6 +162,14 @@ public struct ExplorationView: View {
                                         Text(String(format: "%.2f", features.approach_score))
                                             .font(.system(size: 11, weight: .bold, design: .monospaced))
                                             .foregroundStyle(.white)
+                                    }
+                                    VStack {
+                                        Text("周囲の騒音")
+                                            .font(.system(size: 8))
+                                            .foregroundStyle(.white.opacity(0.5))
+                                        Text(String(format: "%.1f dB", currentNoiseDb))
+                                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                            .foregroundStyle(currentNoiseDb > 60.0 ? .orange : .green)
                                     }
                                 }
                                 .padding(8)
@@ -284,7 +298,8 @@ public struct ExplorationView: View {
             await client.recordTrial(
                 candidateId: currentCand.candidate_id,
                 name: currentCand.name,
-                reaction: reaction
+                reaction: reaction,
+                ambientNoiseDb: currentNoiseDb
             )
             
             // 次の候補へ
@@ -296,6 +311,46 @@ public struct ExplorationView: View {
             }
         }
     }
+    
+    private func playTTS(text: String) {
+        isSpeechPlaying = true
+        isMeasuringNoise = true
+        
+        Task {
+            // 再生直前に騒音レベルを計測 (0.6 秒)
+            let db = await noiseMonitor.measureAmbientNoise(duration: 0.6)
+            self.currentNoiseDb = db
+            self.isMeasuringNoise = false
+            
+            let synthesizer = AVSpeechSynthesizer()
+            let utterance = AVSpeechUtterance(string: text)
+            utterance.voice = AVSpeechSynthesisVoice(language: client.selectedLanguageCode)
+            
+            // 環境音による動的最適化
+            if db < 45.0 {
+                // 静かな環境
+                utterance.volume = 0.6
+                utterance.pitchMultiplier = 1.0
+                utterance.rate = 0.5
+            } else if db <= 60.0 {
+                // 通常の屋外環境
+                utterance.volume = 0.85
+                utterance.pitchMultiplier = 1.0
+                utterance.rate = 0.45
+            } else {
+                // 騒音の大きい環境 (高音にし、聞き取りやすいようハッキリ発音)
+                utterance.volume = 1.0
+                utterance.pitchMultiplier = 1.15
+                utterance.rate = 0.4
+            }
+            
+            synthesizer.speak(utterance)
+            
+            // 再生模擬
+            try? await Task.sleep(nanoseconds: 1_200_000_000)
+            isSpeechPlaying = false
+        }
+    }
 }
 
 // ダミー音声再生クラス
@@ -304,3 +359,4 @@ class NSSoundMock {
         // 音声を再生するダミーロジック
     }
 }
+import AVFoundation

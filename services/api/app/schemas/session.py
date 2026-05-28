@@ -9,6 +9,8 @@ class SessionCreate(BaseModel):
     species: Literal["dog", "cat"]
     temp_animal_id: str | None = None
     location_text: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
     coat_color: str | None = None
     age_hint: str | None = None
     country_code: str | None = None
@@ -20,6 +22,8 @@ class SessionCreate(BaseModel):
 class SessionUpdate(BaseModel):
     temp_animal_id: str | None = None
     location_text: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
     coat_color: str | None = None
     age_hint: str | None = None
     country_code: str | None = None

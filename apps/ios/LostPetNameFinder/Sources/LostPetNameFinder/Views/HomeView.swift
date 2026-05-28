@@ -6,6 +6,8 @@ public struct HomeView: View {
     @State private var navigateToHistory = false
     @State private var navigateToSettings = false
     @State private var navigateToKnownAnimal = false
+    @State private var navigateToJoke = false
+    @State private var navigateToHeatmap = false
 
     public init() {}
 
@@ -123,6 +125,64 @@ public struct HomeView: View {
                         }
 
                         Button {
+                            navigateToJoke = true
+                        } label: {
+                            HStack {
+                                Image(systemName: "face.smiling.fill")
+                                    .font(.title)
+                                    .foregroundStyle(.white)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("ジョークモード (お遊び)")
+                                        .font(.headline)
+                                        .fontWeight(.bold)
+                                    Text("顔写真からニックネームを生成")
+                                        .font(.caption)
+                                        .opacity(0.8)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                            }
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .minHeightTapTarget()
+                            .background(Color(red: 0.95, green: 0.6, blue: 0.1))
+                            .foregroundStyle(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                            .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
+                        }
+
+                        Button {
+                            navigateToHeatmap = true
+                        } label: {
+                            HStack {
+                                Image(systemName: "map.fill")
+                                    .font(.title)
+                                    .foregroundStyle(Color(red: 0.1, green: 0.12, blue: 0.2))
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("探索反応ヒートマップ")
+                                        .font(.headline)
+                                        .fontWeight(.bold)
+                                        .foregroundStyle(Color(red: 0.1, green: 0.12, blue: 0.2))
+                                    Text("周囲の騒音と反応の分布を可視化")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .minHeightTapTarget()
+                            .background(Color.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .stroke(Color(red: 0.86, green: 0.89, blue: 0.94), lineWidth: 1)
+                            )
+                        }
+
+                        Button {
                             navigateToSettings = true
                         } label: {
                             HStack {
@@ -177,6 +237,12 @@ public struct HomeView: View {
             }
             .navigationDestination(isPresented: $navigateToKnownAnimal) {
                 KnownAnimalRegistrationView()
+            }
+            .navigationDestination(isPresented: $navigateToJoke) {
+                JokeSetupView()
+            }
+            .navigationDestination(isPresented: $navigateToHeatmap) {
+                HeatmapView()
             }
         }
     }
