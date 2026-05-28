@@ -40,6 +40,10 @@ public class APIClient: ObservableObject {
     @Published public var availableCountries: [Country] = []
     @Published public var availableLanguages: [Language] = []
     @Published public var availableTTSProfiles: [TTSProfile] = []
+    @Published public var currentJokeSession: JokeSession?
+    @Published public var jokeCandidates: [JokeCandidate] = []
+    @Published public var lastUploadedJokeImageData: Data?
+    @Published public var heatmapPoints: [HeatmapPoint] = []
     
     public var baseURL: URL
     
@@ -172,7 +176,16 @@ public class APIClient: ObservableObject {
     
     // MARK: - API Requests
     
-    public func createSession(species: Species, tempId: String?, notes: String?) async {
+    public func createSession(
+        species: Species,
+        tempId: String?,
+        notes: String?,
+        locationText: String? = nil,
+        coatColor: String? = nil,
+        ageHint: String? = nil,
+        latitude: Double? = nil,
+        longitude: Double? = nil
+    ) async {
         self.isLoading = true
         self.errorMessage = nil
         self.lastFeatures = nil
@@ -187,18 +200,22 @@ public class APIClient: ObservableObject {
             let country_code: String?
             let language_code: String?
             let multi_country_mode: Bool
+            let latitude: Double?
+            let longitude: Double?
         }
         
         let reqBody = CreateSessionRequest(
             species: species.rawValue,
             temp_animal_id: tempId,
             notes: notes,
-            location_text: nil,
-            coat_color: nil,
-            age_hint: nil,
+            location_text: locationText,
+            coat_color: coatColor,
+            age_hint: ageHint,
             country_code: selectedCountryCode,
             language_code: selectedLanguageCode,
-            multi_country_mode: false
+            multi_country_mode: false,
+            latitude: latitude,
+            longitude: longitude
         )
         
         struct CreateSessionResponse: Codable {
@@ -234,6 +251,11 @@ public class APIClient: ObservableObject {
                 session_id: offlineId,
                 species: species,
                 temp_animal_id: tempId,
+                location_text: locationText,
+                latitude: latitude,
+                longitude: longitude,
+                coat_color: coatColor,
+                age_hint: ageHint,
                 country_code: selectedCountryCode,
                 language_code: selectedLanguageCode,
                 notes: notes,
@@ -289,7 +311,7 @@ public class APIClient: ObservableObject {
         self.isLoading = false
     }
     
-    public func recordTrial(candidateId: String, name: String, reaction: String) async {
+    public func recordTrial(candidateId: String, name: String, reaction: String, ambientNoiseDb: Double? = nil) async {
         guard let session = currentSession else { return }
         self.isLoading = true
         self.errorMessage = nil
@@ -344,6 +366,7 @@ public class APIClient: ObservableObject {
             let modulation_type: String
             let played_at: Date
             let manual_flag: String
+            let ambient_noise_db: Double?
         }
         
         let reqBody = RecordTrialRequest(
@@ -352,7 +375,8 @@ public class APIClient: ObservableObject {
             voice_type: "female_bright",
             modulation_type: "nickname",
             played_at: Date(),
-            manual_flag: reaction
+            manual_flag: reaction,
+            ambient_noise_db: ambientNoiseDb
         )
         
         struct RecordTrialResponse: Codable {
@@ -379,7 +403,8 @@ public class APIClient: ObservableObject {
                 voice_type: "female_bright",
                 modulation_type: "nickname",
                 played_at: reqBody.played_at,
-                manual_flag: reaction
+                manual_flag: reaction,
+                ambient_noise_db: ambientNoiseDb
             )
             self.trials.append(newTrial)
             
@@ -409,7 +434,8 @@ public class APIClient: ObservableObject {
                 voice_type: "female_bright",
                 modulation_type: "nickname",
                 played_at: reqBody.played_at,
-                manual_flag: reaction
+                manual_flag: reaction,
+                ambient_noise_db: ambientNoiseDb
             )
             self.trials.append(newTrial)
             
@@ -1699,5 +1725,238 @@ public class APIClient: ObservableObject {
             self.isLoading = false
             return nil
         }
+    }
+
+    // MARK: - Phase 7: Joke Mode API
+    
+    public func createJokeSession(country: String?, language: String?, ageBand: String?, tone: String?) async {
+        self.isLoading = true
+        self.errorMessage = nil
+        
+        struct CreateJokeSessionReq: Codable {
+            let selected_country: String?
+            let selected_language: String?
+            let selected_age_band: String?
+            let tone_type: String?
+        }
+        let req = CreateJokeSessionReq(
+            selected_country: country,
+            selected_language: language,
+            selected_age_band: ageBand,
+            tone_type: tone
+        )
+        
+        do {
+            let res: JokeSession = try await performRequest(
+                path: "joke-sessions",
+                method: "POST",
+                body: req
+            )
+            self.currentJokeSession = res
+            self.isOffline = false
+        } catch {
+            print("API Error (createJokeSession): \(error.localizedDescription)")
+            self.errorMessage = error.localizedDescription
+            self.isOffline = true
+            
+            // オフラインフォールバック用ダミーセッション
+            let dummy = JokeSession(
+                joke_session_id: "jks_offline_\(UUID().uuidString.prefix(6))",
+                selected_country: country,
+                selected_language: language,
+                selected_age_band: ageBand,
+                tone_type: tone,
+                image_path: nil,
+                created_at: ISO8601DateFormatter().string(from: Date()),
+                completed_at: nil
+            )
+            self.currentJokeSession = dummy
+        }
+        self.isLoading = false
+    }
+    
+    public func uploadJokeImage(jokeSessionId: String, fileName: String, fileData: Data) async -> Bool {
+        self.lastUploadedJokeImageData = fileData
+        self.isLoading = true
+        self.errorMessage = nil
+        
+        do {
+            let url = baseURL.appendingPathComponent("joke-sessions/\(jokeSessionId)/image")
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            let boundary = "Boundary-\(UUID().uuidString)"
+            request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+            
+            var body = Data()
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"file\"; filename=\"\(fileName)\"\r\n".data(using: .utf8)!)
+            body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+            body.append(fileData)
+            body.append("\r\n".data(using: .utf8)!)
+            body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+            request.httpBody = body
+            
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                print("Image upload failed with non-200 response")
+                self.isLoading = false
+                return false
+            }
+            
+            struct ImageResEnvelope: Codable {
+                struct ImageData: Codable {
+                    let image_path: String
+                    let has_face: Bool
+                }
+                let data: ImageData?
+            }
+            let decoder = JSONDecoder()
+            let envelope = try decoder.decode(ImageResEnvelope.self, from: data)
+            self.isOffline = false
+            self.isLoading = false
+            return envelope.data?.has_face ?? false
+        } catch {
+            print("API Error (uploadJokeImage): \(error.localizedDescription)")
+            self.errorMessage = error.localizedDescription
+            self.isOffline = true
+            self.isLoading = false
+            return true // オフライン時は顔があるとみなす
+        }
+    }
+    
+    public func fetchJokeCandidates(jokeSessionId: String) async {
+        self.isLoading = true
+        self.errorMessage = nil
+        
+        do {
+            struct CandidatesResponse: Codable {
+                let candidates: [JokeCandidate]
+            }
+            
+            let res: CandidatesResponse = try await performRequest(
+                path: "joke-sessions/\(jokeSessionId)/generate-candidates",
+                method: "POST",
+                body: nil as EmptyResponse?
+            )
+            self.jokeCandidates = res.candidates
+            self.isOffline = false
+        } catch {
+            print("API Error (fetchJokeCandidates): \(error.localizedDescription)")
+            self.isOffline = true
+            
+            // オフライン用のダミーニックネーム候補
+            let lang = currentJokeSession?.selected_language ?? "ja-JP"
+            if lang.contains("en") {
+                self.jokeCandidates = [
+                    JokeCandidate(joke_profile_id: "jkp_dummy_1", name: "Buddy", type: "nickname", language_code: lang, country_code: "US", is_active: true),
+                    JokeCandidate(joke_profile_id: "jkp_dummy_2", name: "Boss", type: "joke_safe", language_code: lang, country_code: "US", is_active: true),
+                    JokeCandidate(joke_profile_id: "jkp_dummy_3", name: "Smiley", type: "nickname", language_code: lang, country_code: "US", is_active: true)
+                ]
+            } else {
+                self.jokeCandidates = [
+                    JokeCandidate(joke_profile_id: "jkp_dummy_1", name: "たっちゃん", type: "nickname", language_code: lang, country_code: "JP", is_active: true),
+                    JokeCandidate(joke_profile_id: "jkp_dummy_2", name: "部長っぽい人", type: "joke_safe", language_code: lang, country_code: "JP", is_active: true),
+                    JokeCandidate(joke_profile_id: "jkp_dummy_3", name: "お昼寝のプロ", type: "joke_safe", language_code: lang, country_code: "JP", is_active: true)
+                ]
+            }
+        }
+        self.isLoading = false
+    }
+    
+    public func recordJokeReaction(jokeSessionId: String, candidateId: String, smileScore: Double, laughScore: Double, reaction: String) async {
+        self.isLoading = true
+        self.errorMessage = nil
+        
+        struct JokeReactionReq: Codable {
+            let joke_profile_id: String
+            let smile_score: Double
+            let laugh_score: Double
+            let manual_reaction: String
+        }
+        let req = JokeReactionReq(
+            joke_profile_id: candidateId,
+            smile_score: smileScore,
+            laugh_score: laughScore,
+            manual_reaction: reaction
+        )
+        
+        do {
+            let _: JokeReactionResponse = try await performRequest(
+                path: "joke-sessions/\(jokeSessionId)/reactions",
+                method: "POST",
+                body: req
+            )
+            self.isOffline = false
+        } catch {
+            print("API Error (recordJokeReaction): \(error.localizedDescription)")
+            self.isOffline = true
+        }
+        self.isLoading = false
+    }
+    
+    public func fetchJokeResults(jokeSessionId: String) async -> JokeResult? {
+        self.isLoading = true
+        self.errorMessage = nil
+        
+        do {
+            let res: JokeResult = try await performRequest(
+                path: "joke-sessions/\(jokeSessionId)/results",
+                method: "GET",
+                body: nil as EmptyResponse?
+            )
+            self.isOffline = false
+            self.isLoading = false
+            return res
+        } catch {
+            print("API Error (fetchJokeResults): \(error.localizedDescription)")
+            self.isOffline = true
+            self.isLoading = false
+            
+            // オフライン用ダミー結果
+            let bestName = jokeCandidates.first?.name ?? "No Name"
+            let dummy = JokeResult(
+                joke_session_id: jokeSessionId,
+                top_candidates: [
+                    JokeResultCandidate(name: bestName, composite_score: 0.95),
+                    JokeResultCandidate(name: "サブ候補", composite_score: 0.75)
+                ],
+                result_card_url: nil
+            )
+            return dummy
+        }
+    }
+    
+    public func fetchHeatmapPoints(species: String? = nil) async {
+        self.isLoading = true
+        self.errorMessage = nil
+        
+        do {
+            if isOffline {
+                self.heatmapPoints = []
+                self.isLoading = false
+                return
+            }
+            
+            let path = "heatmap-points"
+            var params: [String: String]? = nil
+            if let sp = species {
+                params = ["species": sp]
+            }
+            
+            let res: HeatmapResponse = try await performRequest(
+                path: path,
+                method: "GET",
+                queryParams: params,
+                body: nil as EmptyResponse?
+            )
+            self.heatmapPoints = res.points
+            self.isOffline = false
+        } catch {
+            print("API Error (fetchHeatmapPoints): \(error.localizedDescription)")
+            self.errorMessage = error.localizedDescription
+            self.isOffline = true
+            self.heatmapPoints = []
+        }
+        self.isLoading = false
     }
 }
