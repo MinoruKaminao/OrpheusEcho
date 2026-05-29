@@ -273,12 +273,13 @@ public struct JokeSetupView: View {
         let img = renderer.image { ctx in
             // 背景
             UIColor.white.setFill()
-            ctx.fill(CGRect(x: 0, y: 0, width: 200, height: 200))
-            
+            ctx.cgContext.fill(CGRect(x: 0, y: 0, width: 200, height: 200))
+
             // 外枠
             UIColor.lightGray.setStroke()
-            ctx.stroke(CGRect(x: 0, y: 0, width: 200, height: 200), width: 2)
-            
+            ctx.cgContext.setLineWidth(2)
+            ctx.cgContext.stroke(CGRect(x: 1, y: 1, width: 198, height: 198))
+
             // 笑顔マークのシンボル描画
             let config = UIImage.SymbolConfiguration(pointSize: 80, weight: .bold)
             if let smileSymbol = UIImage(systemName: "face.smiling", withConfiguration: config) {
